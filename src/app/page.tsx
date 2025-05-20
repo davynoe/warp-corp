@@ -1,102 +1,290 @@
+"use client";
+
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const images = [
+    {
+      src: "/warp trains above.png",
+      caption: "WARP Trains Above The City",
+    },
+    {
+      src: "/p corp warp platform.png",
+      caption: "P Corp WARP Station",
+    },
+    {
+      src: "/t corp warp platform.png",
+      caption: "T Corp WARP Station",
+    },
+    {
+      src: "/v corp warp platform.png",
+      caption: "V Corp WARP Station",
+    },
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+      {/* Navigation */}
+      <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/Wcorp.png"
+            alt="WARP Corporation Logo"
+            width={60}
+            height={60}
+          />
+          <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
+        </div>
+        <div className="flex gap-6">
+          <Link href="/" className="text-gray-300 hover:text-blue-400">
+            Home
+          </Link>
+          <Link href="/about" className="text-gray-300 hover:text-blue-400">
+            About
+          </Link>
+          <Link href="#" className="text-gray-300 hover:text-blue-400">
+            Schedule
+          </Link>
+          <Link href="#" className="text-gray-300 hover:text-blue-400">
+            Contact
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main>
+        {/* Image Carousel */}
+        <div className="relative h-[70vh] overflow-hidden">
+          {images.map((image, index) => (
+            <div
+              key={image.src}
+              className={`absolute w-full h-full transition-opacity duration-1000 ${
+                index === currentSlide ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <Image
+                src={image.src}
+                alt={image.caption}
+                fill
+                className="object-cover"
+                priority={index === 0}
+              />
+              <div className="absolute bottom-4 right-4 bg-black/70 px-4 py-2 rounded-lg">
+                <p className="text-white text-lg font-medium">
+                  {image.caption}
+                </p>
+              </div>
+            </div>
+          ))}
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center max-w-4xl px-4">
+              <h1 className="text-6xl font-bold mb-6 text-blue-400">
+                Experience the Future of Travel
+              </h1>
+              <p className="text-xl mb-8 text-gray-200">
+                WARP Corporation&apos;s interdimensional transportation system
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Introduction Section */}
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl font-bold mb-8 text-blue-400">
+              Welcome to WARP Corp.
+            </h2>
+            <div className="space-y-6 text-gray-300">
+              <p className="text-lg">
+                In The City, where it is difficult to travel between districts,
+                WARP Corp. stands at the forefront of transportation innovation.
+                Our interdimensional travel technology has redefined the concept
+                of distance and time.
+              </p>
+              <p className="text-lg">
+                Our trains utilize advanced warping technology to transport
+                passengers between districts in a mere 10 seconds. Experience
+                the future of travel as you step into our luxurious cabins,
+                available in both Economy and First Class configurations.
+              </p>
+              <div className="bg-blue-900/30 p-6 rounded-lg border border-blue-500/30">
+                <h3 className="text-2xl font-semibold mb-4 text-blue-400">
+                  Why Choose WARP?
+                </h3>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-2">
+                    <span className="text-blue-400">⚡</span>
+                    Instant travel between districts in just 10 seconds
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-blue-400">🛡️</span>
+                    State-of-the-art safety systems
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-blue-400">💎</span>
+                    Premium comfort in both Economy and First Class
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="text-blue-400">🌐</span>
+                    Connect to any district in The City
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Booking Section */}
+        <div className="bg-gray-900 py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold mb-6 text-blue-400">
+                Book Your Interdimensional Journey
+              </h2>
+              <p className="text-xl text-gray-300 mb-8">
+                Experience the future of transportation with WARP trains
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto bg-gray-800 rounded-xl shadow-lg p-8 mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    From District
+                  </label>
+                  <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
+                    <option>Select District</option>
+                    {Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map((letter) => (
+                      <option key={letter}>District {letter}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    To District
+                  </label>
+                  <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
+                    <option>Select District</option>
+                    {Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map((letter) => (
+                      <option key={letter}>District {letter}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Class
+                  </label>
+                  <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
+                    <option>Economy Class</option>
+                    <option>First Class</option>
+                  </select>
+                </div>
+              </div>
+              <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                Search for a train
+              </button>
+            </div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 py-12 border-t border-gray-800">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h4 className="text-lg font-semibold mb-4 text-blue-400">
+                About WARP
+              </h4>
+              <p className="text-gray-400">
+                Revolutionizing transportation in The City with interdimensional
+                travel technology.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4 text-blue-400">
+                Quick Links
+              </h4>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                    Schedule
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                    Fares
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                    Stations
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4 text-blue-400">
+                Support
+              </h4>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                    Contact Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                    Help Center
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4 text-blue-400">
+                Newsletter
+              </h4>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 p-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                  Subscribe
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2026 WARP Corporation. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
