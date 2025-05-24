@@ -2,27 +2,39 @@ export interface Line {
   id: number;
   code: string;
   name: string;
-  stations: string[];
+  stations: DistrictCode[];
   length: number;
 }
 
 export interface Stop {
-  station: string;
+  station: DistrictCode;
   arrival: string;
   departure: string;
+}
+
+export interface ScheduleStop {
+  station: DistrictCode;
+  arrival: string;
+  departure?: string;
 }
 
 export interface Schedule {
   id: number;
   lineCode: string;
-  stops: Stop[];
+  stops: ScheduleStop[];
 }
 
 export interface Train {
   name: string;
   line: string;
-  economySeats: number;
-  firstClassSeats: number;
+  economySeats: {
+    available: number;
+    taken: number;
+  };
+  firstClassSeats: {
+    available: number;
+    taken: number;
+  };
   status: "at station" | "in transit" | "stopped";
   currentStation: DistrictCode | "none";
 }
@@ -60,10 +72,47 @@ export type DistrictCode =
   | "Y";
 
 export interface Route {
-  stations: string[];
-  lines: string[];
-  transferStations: string[];
-  totalStations: number;
-  priceEconomy: number;
-  priceFirstClass: number;
+  route: DistrictCode[];
+  lines: {
+    name: string;
+    trainName?: string;
+    segment: DistrictCode[];
+    schedule?: {
+      id: number;
+      stops: ScheduleStop[];
+    };
+  }[];
+  transfer: DistrictCode[];
+  stationsCount: number;
+  prices: {
+    economy: number;
+    firstClass: number;
+  };
+}
+
+export interface ScheduleSegment {
+  line: string;
+  scheduleId: number;
+  stops: ScheduleStop[];
+}
+
+export interface RouteSchedule {
+  id: number;
+  segments: ScheduleSegment[];
+}
+
+export interface MergedRoute {
+  route: DistrictCode[];
+  lines: {
+    name: string;
+    trainName?: string;
+    segment: DistrictCode[];
+  }[];
+  transfer: DistrictCode[];
+  stationsCount: number;
+  prices: {
+    economy: number;
+    firstClass: number;
+  };
+  schedules: RouteSchedule[];
 }

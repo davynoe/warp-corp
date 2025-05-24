@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { District } from "@/definitions";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -12,6 +13,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [selectedFrom, setSelectedFrom] = useState<string>("");
   const [selectedTo, setSelectedTo] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   const images = [
     {
@@ -71,6 +73,20 @@ export default function Home() {
     setSelectedTo(value);
     if (value === selectedFrom) {
       setSelectedFrom("");
+    }
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedDate(e.target.value);
+  };
+
+  const router = useRouter();
+
+  const handleSearchClick = () => {
+    if (selectedFrom && selectedTo && selectedDate) {
+      router.push(
+        `/book?start=${selectedFrom}&end=${selectedTo}&date=${selectedDate}`
+      );
     }
   };
 
@@ -262,12 +278,20 @@ export default function Home() {
                   <input
                     type="date"
                     className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
+                    value={selectedDate}
+                    onChange={handleDateChange}
                   />
                 </div>
               </div>
-              <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
-                Search for a train
-              </button>
+              <div>
+                <button
+                  className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleSearchClick}
+                  disabled={!selectedFrom || !selectedTo || !selectedDate}
+                >
+                  Search for a train
+                </button>
+              </div>
             </div>
           </div>
         </div>
