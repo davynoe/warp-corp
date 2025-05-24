@@ -3,9 +3,14 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { District } from "@/definitions";
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const images = [
     {
       src: "/warp trains above.png",
@@ -30,6 +35,25 @@ export default function Home() {
       setCurrentSlide((prev) => (prev + 1) % images.length);
     }, 5000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/districts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch districts");
+        }
+        const data = await response.json();
+        setDistricts(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDistricts();
   }, []);
 
   return (
@@ -165,9 +189,17 @@ export default function Home() {
                   </label>
                   <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
                     <option>Select District</option>
-                    {Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map((letter) => (
-                      <option key={letter}>District {letter}</option>
-                    ))}
+                    {isLoading ? (
+                      <option disabled>Loading districts...</option>
+                    ) : error ? (
+                      <option disabled>Error loading districts</option>
+                    ) : (
+                      districts.map((district) => (
+                        <option key={district.code} value={district.code}>
+                          {district.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div>
@@ -176,9 +208,17 @@ export default function Home() {
                   </label>
                   <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
                     <option>Select District</option>
-                    {Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map((letter) => (
-                      <option key={letter}>District {letter}</option>
-                    ))}
+                    {isLoading ? (
+                      <option disabled>Loading districts...</option>
+                    ) : error ? (
+                      <option disabled>Error loading districts</option>
+                    ) : (
+                      districts.map((district) => (
+                        <option key={district.code} value={district.code}>
+                          {district.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div>
