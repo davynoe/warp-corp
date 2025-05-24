@@ -10,6 +10,8 @@ export default function Home() {
   const [districts, setDistricts] = useState<District[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFrom, setSelectedFrom] = useState<string>("");
+  const [selectedTo, setSelectedTo] = useState<string>("");
 
   const images = [
     {
@@ -55,6 +57,22 @@ export default function Home() {
 
     fetchDistricts();
   }, []);
+
+  const handleFromChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedFrom(value);
+    if (value === selectedTo) {
+      setSelectedTo("");
+    }
+  };
+
+  const handleToChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedTo(value);
+    if (value === selectedFrom) {
+      setSelectedFrom("");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
@@ -187,15 +205,23 @@ export default function Home() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     From District
                   </label>
-                  <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
-                    <option>Select District</option>
+                  <select
+                    className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
+                    value={selectedFrom}
+                    onChange={handleFromChange}
+                  >
+                    <option value="">Select District</option>
                     {isLoading ? (
                       <option disabled>Loading districts...</option>
                     ) : error ? (
                       <option disabled>Error loading districts</option>
                     ) : (
                       districts.map((district) => (
-                        <option key={district.code} value={district.code}>
+                        <option
+                          key={district.code}
+                          value={district.code}
+                          disabled={district.code === selectedTo}
+                        >
                           {district.name}
                         </option>
                       ))
@@ -206,15 +232,23 @@ export default function Home() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     To District
                   </label>
-                  <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
-                    <option>Select District</option>
+                  <select
+                    className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
+                    value={selectedTo}
+                    onChange={handleToChange}
+                  >
+                    <option value="">Select District</option>
                     {isLoading ? (
                       <option disabled>Loading districts...</option>
                     ) : error ? (
                       <option disabled>Error loading districts</option>
                     ) : (
                       districts.map((district) => (
-                        <option key={district.code} value={district.code}>
+                        <option
+                          key={district.code}
+                          value={district.code}
+                          disabled={district.code === selectedFrom}
+                        >
                           {district.name}
                         </option>
                       ))
@@ -229,15 +263,6 @@ export default function Home() {
                     type="date"
                     className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Class
-                  </label>
-                  <select className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white">
-                    <option>Economy Class</option>
-                    <option>First Class</option>
-                  </select>
                 </div>
               </div>
               <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
@@ -289,17 +314,17 @@ export default function Home() {
               </h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                  <a href="#" className="text-gray-300 hover:text-blue-400">
                     Contact Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                  <a href="#" className="text-gray-300 hover:text-blue-400">
                     FAQ
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-blue-400">
+                  <a href="#" className="text-gray-300 hover:text-blue-400">
                     Help Center
                   </a>
                 </li>
