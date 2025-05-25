@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { District } from "@/definitions";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -14,6 +14,7 @@ export default function Home() {
   const [selectedFrom, setSelectedFrom] = useState<string>("");
   const [selectedTo, setSelectedTo] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
 
   const images = [
     {
@@ -60,6 +61,20 @@ export default function Home() {
     fetchDistricts();
   }, []);
 
+  useEffect(() => {
+    const userDataString = localStorage.getItem("warp_user_data");
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        if (userData.username) {
+          setLoggedInUsername(userData.username);
+        }
+      } catch (e) {
+        console.error("Failed to parse user data from local storage", e);
+      }
+    }
+  }, []);
+
   const handleFromChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectedFrom(value);
@@ -81,6 +96,7 @@ export default function Home() {
   };
 
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleSearchClick = () => {
     if (selectedFrom && selectedTo && selectedDate) {
@@ -104,18 +120,64 @@ export default function Home() {
           <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
         </div>
         <div className="flex gap-6">
-          <Link href="/" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/"
+            className={
+              pathname === "/"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             Home
           </Link>
-          <Link href="/about" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/about"
+            className={
+              pathname === "/about"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             About
           </Link>
-          <Link href="/schedule" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/schedule"
+            className={
+              pathname === "/schedule"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             Schedule
+          </Link>
+          <Link
+            href="/book"
+            className={
+              pathname === "/book"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
+            Book
           </Link>
           <Link href="#" className="text-gray-300 hover:text-blue-400">
             Contact
           </Link>
+          {/* Conditionally render Sign In or Username */}
+          {loggedInUsername ? (
+            <span className="text-blue-400">{loggedInUsername}!</span>
+          ) : (
+            <Link
+              href="/sign-in"
+              className={
+                pathname === "/sign-in"
+                  ? "text-blue-400"
+                  : "text-gray-300 hover:text-blue-400"
+              }
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </nav>
 
@@ -298,8 +360,8 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 py-12 border-t border-gray-800">
-        <div className="container mx-auto px-4">
+      <footer className="bg-gray-900 py-12 border-t border-gray-800 mt-20">
+        <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h4 className="text-lg font-semibold mb-4 text-blue-400">

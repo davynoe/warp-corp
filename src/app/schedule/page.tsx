@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Line } from "@/definitions";
 import type { Schedule } from "@/definitions";
+import { usePathname } from "next/navigation";
 
 export default function Schedule() {
   const [lines, setLines] = useState<Line[]>([]);
@@ -12,6 +13,8 @@ export default function Schedule() {
   const [selectedLine, setSelectedLine] = useState<Line | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
+  const pathname = usePathname();
 
   // Fetch all lines and schedules when the component mounts
   useEffect(() => {
@@ -71,6 +74,23 @@ export default function Schedule() {
     fetchAllData();
   }, []); // Empty dependency array means this runs once when component mounts
 
+  useEffect(() => {
+    // Check local storage for user data on component mount
+    const userDataString = localStorage.getItem("warp_user_data");
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        if (userData.username) {
+          setLoggedInUsername(userData.username);
+        }
+      } catch (e) {
+        console.error("Failed to parse user data from local storage", e);
+        // Optionally clear invalid data
+        // localStorage.removeItem('warp_user_data');
+      }
+    }
+  }, []); // Empty dependency array means this runs once on mount
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       {/* Navigation */}
@@ -85,22 +105,68 @@ export default function Schedule() {
           <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
         </div>
         <div className="flex gap-6">
-          <Link href="/" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/"
+            className={
+              pathname === "/"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             Home
           </Link>
-          <Link href="/about" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/about"
+            className={
+              pathname === "/about"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             About
           </Link>
-          <Link href="/schedule" className="text-blue-400">
+          <Link
+            href="/schedule"
+            className={
+              pathname === "/schedule"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             Schedule
+          </Link>
+          <Link
+            href="/book"
+            className={
+              pathname === "/book"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
+            Book
           </Link>
           <Link href="#" className="text-gray-300 hover:text-blue-400">
             Contact
           </Link>
+          {/* Conditionally render Sign In or Username */}
+          {loggedInUsername ? (
+            <span className="text-blue-400">{loggedInUsername}!</span>
+          ) : (
+            <Link
+              href="/sign-in"
+              className={
+                pathname === "/sign-in"
+                  ? "text-blue-400"
+                  : "text-gray-300 hover:text-blue-400"
+              }
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </nav>
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-6 py-12">
         <h1 className="text-5xl font-bold mb-8 text-blue-400">
           Routes & Schedules
         </h1>
@@ -214,7 +280,7 @@ export default function Schedule() {
 
       {/* Footer */}
       <footer className="bg-gray-900 py-12 border-t border-gray-800 mt-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6">
           <div className="text-center text-gray-400">
             <p>&copy; 2026 WARP Corporation. All rights reserved.</p>
           </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { District, MergedRoute } from "@/definitions";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export default function BookRoutes() {
   const [districts, setDistricts] = useState<District[]>([]);
@@ -17,8 +17,11 @@ export default function BookRoutes() {
   const [errorRoutes, setErrorRoutes] = useState<string | null>(null);
   const [expandedSchedule, setExpandedSchedule] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   // Fetch districts on component mount and trigger search if params exist
   useEffect(() => {
@@ -65,6 +68,23 @@ export default function BookRoutes() {
 
     fetchInitialData();
   }, [searchParams]); // Depend on searchParams to re-run if they change
+
+  // Effect to check local storage for user data on component mount
+  useEffect(() => {
+    const userDataString = localStorage.getItem("warp_user_data");
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        if (userData.username) {
+          setLoggedInUsername(userData.username);
+        }
+      } catch (e) {
+        console.error("Failed to parse user data from local storage", e);
+        // Optionally clear invalid data
+        // localStorage.removeItem('warp_user_data');
+      }
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   const handleSearch = async (start?: string, end?: string, date?: string) => {
     // Use parameters if provided, otherwise fallback to state
@@ -128,6 +148,15 @@ export default function BookRoutes() {
     setExpandedSchedule(expandedSchedule === scheduleId ? null : scheduleId);
   };
 
+  const handleSelectSchedule = (route: MergedRoute, scheduleId: number) => {
+    // Navigate to the ticket buying page with parameters
+    router.push(
+      `/buy-ticket?start=${route.route[0]}&end=${
+        route.route[route.route.length - 1]
+      }&date=${selectedDate}&scheduleId=${scheduleId}`
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       {/* Navigation */}
@@ -142,25 +171,68 @@ export default function BookRoutes() {
           <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
         </div>
         <div className="flex gap-6">
-          <Link href="/" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/"
+            className={
+              pathname === "/"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             Home
           </Link>
-          <Link href="/about" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/about"
+            className={
+              pathname === "/about"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             About
           </Link>
-          <Link href="/schedule" className="text-gray-300 hover:text-blue-400">
+          <Link
+            href="/schedule"
+            className={
+              pathname === "/schedule"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             Schedule
           </Link>
-          <Link href="/book" className="text-blue-400">
+          <Link
+            href="/book"
+            className={
+              pathname === "/book"
+                ? "text-blue-400"
+                : "text-gray-300 hover:text-blue-400"
+            }
+          >
             Book
           </Link>
           <Link href="#" className="text-gray-300 hover:text-blue-400">
             Contact
           </Link>
+          {/* Conditionally render Sign In or Username */}
+          {loggedInUsername ? (
+            <span className="text-blue-400">{loggedInUsername}!</span>
+          ) : (
+            <Link
+              href="/sign-in"
+              className={
+                pathname === "/sign-in"
+                  ? "text-blue-400"
+                  : "text-gray-300 hover:text-blue-400"
+              }
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </nav>
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-6 py-12">
         <h1 className="text-5xl font-bold mb-8 text-blue-400">
           Book Your Journey
         </h1>
@@ -372,6 +444,16 @@ export default function BookRoutes() {
                               </table>
                             </div>
                           ))}
+
+                          {/* Select Schedule Button */}
+                          <button
+                            onClick={() =>
+                              handleSelectSchedule(route, schedule.id)
+                            }
+                            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-2 rounded-lg transition duration-200 text-sm"
+                          >
+                            Select Schedule
+                          </button>
                         </div>
                       )}
                     </div>
@@ -385,7 +467,7 @@ export default function BookRoutes() {
 
       {/* Footer */}
       <footer className="bg-gray-900 py-12 border-t border-gray-800 mt-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6">
           <div className="text-center text-gray-400">
             <p>&copy; 2026 WARP Corporation. All rights reserved.</p>
           </div>
