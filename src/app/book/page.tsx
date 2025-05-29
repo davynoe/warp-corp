@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { District, MergedRoute } from "@/definitions";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 export default function BookRoutes() {
   const [districts, setDistricts] = useState<District[]>([]);
@@ -17,11 +17,9 @@ export default function BookRoutes() {
   const [errorRoutes, setErrorRoutes] = useState<string | null>(null);
   const [expandedSchedule, setExpandedSchedule] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
 
   // Fetch districts on component mount and trigger search if params exist
   useEffect(() => {
@@ -68,23 +66,6 @@ export default function BookRoutes() {
 
     fetchInitialData();
   }, [searchParams]); // Depend on searchParams to re-run if they change
-
-  // Effect to check local storage for user data on component mount
-  useEffect(() => {
-    const userDataString = localStorage.getItem("warp_user_data");
-    if (userDataString) {
-      try {
-        const userData = JSON.parse(userDataString);
-        if (userData.username) {
-          setLoggedInUsername(userData.username);
-        }
-      } catch (e) {
-        console.error("Failed to parse user data from local storage", e);
-        // Optionally clear invalid data
-        // localStorage.removeItem('warp_user_data');
-      }
-    }
-  }, []); // Empty dependency array means this runs once on mount
 
   const handleSearch = async (start?: string, end?: string, date?: string) => {
     // Use parameters if provided, otherwise fallback to state
@@ -159,78 +140,7 @@ export default function BookRoutes() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-      {/* Navigation */}
-      <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/Wcorp.png"
-            alt="WARP Corporation Logo"
-            width={60}
-            height={60}
-          />
-          <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
-        </div>
-        <div className="flex gap-6">
-          <Link
-            href="/"
-            className={
-              pathname === "/"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Home
-          </Link>
-          <Link
-            href="/about"
-            className={
-              pathname === "/about"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            About
-          </Link>
-          <Link
-            href="/schedule"
-            className={
-              pathname === "/schedule"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Schedule
-          </Link>
-          <Link
-            href="/book"
-            className={
-              pathname === "/book"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Book
-          </Link>
-          <Link href="#" className="text-gray-300 hover:text-blue-400">
-            Contact
-          </Link>
-          {/* Conditionally render Sign In or Username */}
-          {loggedInUsername ? (
-            <span className="text-blue-400">{loggedInUsername}!</span>
-          ) : (
-            <Link
-              href="/sign-in"
-              className={
-                pathname === "/sign-in"
-                  ? "text-blue-400"
-                  : "text-gray-300 hover:text-blue-400"
-              }
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container mx-auto px-6 py-12">
         <h1 className="text-5xl font-bold mb-8 text-blue-400">

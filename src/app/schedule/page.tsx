@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Line } from "@/definitions";
 import type { Schedule } from "@/definitions";
 import { usePathname } from "next/navigation";
+import { signOut } from "@/utils/auth";
+import Navbar from "@/components/Navbar";
 
 export default function Schedule() {
   const [lines, setLines] = useState<Line[]>([]);
@@ -15,6 +17,8 @@ export default function Schedule() {
   const [error, setError] = useState<string | null>(null);
   const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
   const pathname = usePathname();
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<string>("");
 
   // Fetch all lines and schedules when the component mounts
   useEffect(() => {
@@ -93,78 +97,7 @@ export default function Schedule() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-      {/* Navigation */}
-      <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/Wcorp.png"
-            alt="WARP Corporation Logo"
-            width={60}
-            height={60}
-          />
-          <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
-        </div>
-        <div className="flex gap-6">
-          <Link
-            href="/"
-            className={
-              pathname === "/"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Home
-          </Link>
-          <Link
-            href="/about"
-            className={
-              pathname === "/about"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            About
-          </Link>
-          <Link
-            href="/schedule"
-            className={
-              pathname === "/schedule"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Schedule
-          </Link>
-          <Link
-            href="/book"
-            className={
-              pathname === "/book"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Book
-          </Link>
-          <Link href="#" className="text-gray-300 hover:text-blue-400">
-            Contact
-          </Link>
-          {/* Conditionally render Sign In or Username */}
-          {loggedInUsername ? (
-            <span className="text-blue-400">{loggedInUsername}!</span>
-          ) : (
-            <Link
-              href="/sign-in"
-              className={
-                pathname === "/sign-in"
-                  ? "text-blue-400"
-                  : "text-gray-300 hover:text-blue-400"
-              }
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container mx-auto px-6 py-12">
         <h1 className="text-5xl font-bold mb-8 text-blue-400">

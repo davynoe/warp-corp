@@ -1,102 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 export default function About() {
-  const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
-
-  useEffect(() => {
-    const userDataString = localStorage.getItem("warp_user_data");
-    if (userDataString) {
-      try {
-        const userData = JSON.parse(userDataString);
-        if (userData.username) {
-          setLoggedInUsername(userData.username);
-        }
-      } catch (e) {
-        console.error("Failed to parse user data from local storage", e);
-      }
-    }
-  }, []);
-
-  const pathname = usePathname();
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-      {/* Navigation */}
-      <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/Wcorp.png"
-            alt="WARP Corporation Logo"
-            width={60}
-            height={60}
-          />
-          <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
-        </div>
-        <div className="flex gap-6">
-          <Link
-            href="/"
-            className={
-              pathname === "/"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Home
-          </Link>
-          <Link
-            href="/about"
-            className={
-              pathname === "/about"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            About
-          </Link>
-          <Link
-            href="/schedule"
-            className={
-              pathname === "/schedule"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Schedule
-          </Link>
-          <Link
-            href="/book"
-            className={
-              pathname === "/book"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Book
-          </Link>
-          <Link href="#" className="text-gray-300 hover:text-blue-400">
-            Contact
-          </Link>
-          {loggedInUsername ? (
-            <span className="text-blue-400">{loggedInUsername}!</span>
-          ) : (
-            <Link
-              href="/sign-in"
-              className={
-                pathname === "/sign-in"
-                  ? "text-blue-400"
-                  : "text-gray-300 hover:text-blue-400"
-              }
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container mx-auto px-6 py-12">
         {/* Company Introduction */}

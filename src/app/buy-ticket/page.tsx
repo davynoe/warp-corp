@@ -1,20 +1,55 @@
 "use client";
 
-import { useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
+
+// Format card number as user types (e.g., 1234-5678-9012-3456)
+const formatCardNumber = (value: string) => {
+  const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+  const matches = v.match(/\d{4,16}/g);
+  const match = (matches && matches[0]) || "";
+  const parts = [];
+
+  for (let i = 0, len = match.length; i < len; i += 4) {
+    parts.push(match.substring(i, i + 4));
+  }
+
+  if (parts.length) {
+    return parts.join("-");
+  } else {
+    return value;
+  }
+};
+
+// Format expiration date as user types (e.g., 12/27)
+const formatExpiryDate = (value: string) => {
+  const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+
+  if (v.length >= 3) {
+    return `${v.substring(0, 2)}/${v.substring(2, 4)}`;
+  }
+  return v;
+};
+
+// Format CVV (3 digits only)
+const formatCVV = (value: string) => {
+  return value
+    .replace(/\s+/g, "")
+    .replace(/[^0-9]/gi, "")
+    .substring(0, 3);
+};
 
 export default function BuyTicket() {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const [ticketDetails, setTicketDetails] = useState<{
     start: string | null;
     end: string | null;
     date: string | null;
     scheduleId: string | null;
   } | null>(null);
-  // Add state for form inputs
   const [userName, setUserName] = useState<string>("");
   const [cardNumber, setCardNumber] = useState<string>("");
   const [expiryDate, setExpiryDate] = useState<string>("");
@@ -25,6 +60,7 @@ export default function BuyTicket() {
   );
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
   const [loggedInUsername, setLoggedInUsername] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const start = searchParams.get("start");
@@ -47,6 +83,7 @@ export default function BuyTicket() {
         const userData = JSON.parse(userDataString);
         if (userData.username) {
           setLoggedInUsername(userData.username);
+          setUserName(userData.username); // Pre-fill the name field with username
         }
       } catch (e) {
         console.error("Failed to parse user data from local storage", e);
@@ -56,6 +93,12 @@ export default function BuyTicket() {
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!loggedInUsername) {
+      alert("Please sign in to complete your purchase.");
+      router.push("/sign-in");
+      return;
+    }
 
     if (!termsAccepted) {
       alert("Please accept the Terms of Service to proceed.");
@@ -76,87 +119,24 @@ export default function BuyTicket() {
     // Redirect or show success message
   };
 
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCardNumber(e.target.value);
+    setCardNumber(formatted);
+  };
+
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatExpiryDate(e.target.value);
+    setExpiryDate(formatted);
+  };
+
+  const handleCVVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCVV(e.target.value);
+    setCvv(formatted);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-      {/* Navigation */}
-      <nav className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/Wcorp.png"
-            alt="WARP Corporation Logo"
-            width={60}
-            height={60}
-          />
-          <span className="text-2xl font-bold text-blue-400">WARP Corp.</span>
-        </div>
-        <div className="flex gap-6">
-          <Link
-            href="/"
-            className={
-              pathname === "/"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Home
-          </Link>
-          <Link
-            href="/about"
-            className={
-              pathname === "/about"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            About
-          </Link>
-          <Link
-            href="/schedule"
-            className={
-              pathname === "/schedule"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Schedule
-          </Link>
-          <Link
-            href="/book"
-            className={
-              pathname === "/book"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Book
-          </Link>
-          <Link
-            href="/buy-ticket"
-            className={
-              pathname === "/buy-ticket"
-                ? "text-blue-400"
-                : "text-gray-300 hover:text-blue-400"
-            }
-          >
-            Buy Ticket
-          </Link>
-          {/* Conditionally render Sign In or Username */}
-          {loggedInUsername ? (
-            <span className="text-blue-400">{loggedInUsername}!</span>
-          ) : (
-            <Link
-              href="/sign-in"
-              className={
-                pathname === "/sign-in"
-                  ? "text-blue-400"
-                  : "text-gray-300 hover:text-blue-400"
-              }
-            >
-              Sign In
-            </Link>
-          )}
-        </div>
-      </nav>
+      <Navbar showBuyTicket={true} />
 
       <main className="container mx-auto px-6 py-12">
         <h1 className="text-5xl font-bold mb-8 text-blue-400">
@@ -198,16 +178,25 @@ export default function BuyTicket() {
                     }`}
                     onClick={() => setSeatClass("economy")}
                   >
-                    <div className="relative h-40 w-full">
+                    <div
+                      className="relative w-full"
+                      style={{ aspectRatio: "4/3" }}
+                    >
                       <Image
                         src="/warp train economy cabin.png"
                         alt="Economy Class Cabin"
                         fill
                         className="object-cover"
                       />
-                    </div>
-                    <div className="p-4 bg-gray-700 text-center font-semibold text-lg">
-                      Economy Class
+                      <div className="absolute inset-0 bg-black/50" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                        <h4 className="text-xl font-semibold text-white">
+                          Economy Class
+                        </h4>
+                        <p className="text-gray-200 text-sm mt-1">
+                          Comfortable seating with basic amenities
+                        </p>
+                      </div>
                     </div>
                   </div>
 
@@ -220,16 +209,25 @@ export default function BuyTicket() {
                     }`}
                     onClick={() => setSeatClass("firstClass")}
                   >
-                    <div className="relative h-40 w-full">
+                    <div
+                      className="relative w-full"
+                      style={{ aspectRatio: "4/3" }}
+                    >
                       <Image
                         src="/warp train first class cabin.png"
                         alt="First Class Cabin"
                         fill
                         className="object-cover"
                       />
-                    </div>
-                    <div className="p-4 bg-gray-700 text-center font-semibold text-lg">
-                      First Class
+                      <div className="absolute inset-0 bg-black/50" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                        <h4 className="text-xl font-semibold text-white">
+                          First Class
+                        </h4>
+                        <p className="text-gray-200 text-sm mt-1">
+                          Luxury private capsules with premium service
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -340,7 +338,9 @@ export default function BuyTicket() {
                   id="cardNumber"
                   className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
                   value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
+                  onChange={handleCardNumberChange}
+                  placeholder="1234-5678-9012-3456"
+                  maxLength={19} // 16 digits + 3 hyphens
                   required
                 />
               </div>
@@ -357,8 +357,9 @@ export default function BuyTicket() {
                     id="expiryDate"
                     className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
                     value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
+                    onChange={handleExpiryDateChange}
                     placeholder="MM/YY"
+                    maxLength={5} // MM/YY format
                     required
                   />
                 </div>
@@ -374,7 +375,9 @@ export default function BuyTicket() {
                     id="cvv"
                     className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 text-white"
                     value={cvv}
-                    onChange={(e) => setCvv(e.target.value)}
+                    onChange={handleCVVChange}
+                    placeholder="123"
+                    maxLength={3}
                     required
                   />
                 </div>
@@ -603,26 +606,26 @@ export default function BuyTicket() {
                 </label>
               </div>
 
-              {/* Pay Button */}
+              {/* Payment Button */}
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!termsAccepted}
+                className={`w-full mt-6 ${
+                  loggedInUsername
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-blue-600 hover:bg-blue-700"
+                } text-white font-semibold py-3 px-6 rounded-lg transition duration-200`}
+                onClick={() => {
+                  if (!loggedInUsername) {
+                    router.push("/sign-in");
+                  }
+                }}
               >
-                Pay Now
+                {loggedInUsername ? "Pay Now" : "Login to Pay"}
               </button>
             </form>
           ) : (
             <p className="text-gray-400">Loading ticket details...</p>
           )}
-
-          {/* Optional: Link to a Sign Up page if you create one */}
-          <p className="text-center text-gray-400 text-sm mt-6">
-            Don&apos;t have an account?{" "}
-            <Link href="#" className="text-blue-400 hover:underline">
-              Sign Up
-            </Link>
-          </p>
         </div>
       </main>
 
